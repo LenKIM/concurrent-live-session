@@ -3,6 +3,11 @@ package io.agistep;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+
 import static org.assertj.core.api.Assertions.*;
 
 class ThreadDemoTest {
@@ -139,5 +144,33 @@ class ThreadDemoTest {
         long end = System.currentTimeMillis();
         System.out.println(end-start);
         assertThat(counter.atomicInteger.get()).isEqualTo(200000);
+    }
+
+    @Test
+    void concurrentPutAndAddTest() throws InterruptedException {
+//        Map<String, Integer> counterMap = new ConcurrentHashMap<>();
+        Map<String, Integer> counterMap = new HashMap<>();
+
+        int threadCount = 10;
+        int incrementPerThread = 10_000;
+        String key = "myKey";
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        for (int i = 0; i < threadCount; i++) {
+            new Thread(() -> {
+                for (int j = 0; j < incrementPerThread; j++) {
+                    counterMap.compute(key, (k, v) -> v == null ? 1 : v + 1);
+                }
+                latch.countDown();
+            }).start();
+        }
+
+        latch.await();
+
+        int finalCount = counterMap.getOrDefault(key, 0);
+        System.out.println("최종 카운트: " + finalCount);
+
+        // 검증: 10 * 10_000 = 100_000
+        assertThat(finalCount).isEqualTo(threadCount * incrementPerThread);
     }
 }
