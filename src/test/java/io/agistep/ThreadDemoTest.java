@@ -92,13 +92,13 @@ class ThreadDemoTest {
 
         Thread t = new Thread(() -> {
             for (int i = 0; i < 100000; i++) {
-                counter.add(1);
+                counter.addWithLock(1);
             }
         });
 
         Thread t2 = new Thread(() -> {
             for (int i = 0; i < 100000; i++) {
-                counter.add(1);
+                counter.addWithLock(1);
             }
         });
 

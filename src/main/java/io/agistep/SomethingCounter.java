@@ -1,12 +1,27 @@
 package io.agistep;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 public class SomethingCounter {
 
-    // 횟수
+    private final Lock lock = new ReentrantLock();
+
     int count = 0;
 
     public synchronized int add(int t) {
         count = count + t;
+        return count;
+    }
+
+    public int addWithLock(int t) {
+        lock.lock();
+        try {
+            count = count + t;
+        } finally {
+            lock.unlock();
+        }
+
         return count;
     }
 
