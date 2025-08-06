@@ -5,7 +5,7 @@ public class SomethingCounter {
     // 횟수
     int count = 0;
 
-    public int add(int t) {
+    public synchronized int add(int t) {
         count = count + t;
         return count;
     }
